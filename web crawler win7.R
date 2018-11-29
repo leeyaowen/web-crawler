@@ -12,10 +12,10 @@ library(RSelenium)
 
 #氣象局雨量前百
 cwb<-read_html("https://www.cwb.gov.tw/V7/observe/rainfall/ha_100.htm")
-cwbdt<-cwb %>% html_nodes("td , th") %>% html_text()
-cwbdt<-cwbdt[-c(1:3)]
-cwbtitle<-cwbdt[1:5]
-cwbdt<-cwbdt[-c(1:5)]
+cwbdt<-cwb %>% html_nodes("table.BoxTable td") %>% html_text()
+cwbtitle<-cwb %>% html_nodes("table.BoxTable th") %>% html_text()
+cwbdt<-cwbdt[-1]
+cwbtitle<-cwbtitle[-1]
 cwbdt<-matrix(data = cwbdt,ncol = 5,byrow = T)
 colnames(cwbdt)<-cwbtitle
 
