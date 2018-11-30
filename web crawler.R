@@ -10,7 +10,7 @@ library(httr)
 library(jsonlite)
 library(stringi)
 
-#æ°£è±¡å±€é›¨é‡å‰100
+#®ğ¶H§½«B¶q«e¦Ê
 cwb<-read_html("https://www.cwb.gov.tw/V7/observe/rainfall/ha_100.htm")
 cwbdt<-cwb %>% html_nodes("table.BoxTable td") %>% html_text()
 cwbtitle<-cwb %>% html_nodes("table.BoxTable th") %>% html_text()
@@ -79,3 +79,4 @@ lcstitle<-lcsdt %>% html_nodes("table th span.column-name") %>% html_text()
 lcstb<-lcsdt %>% html_nodes("table td") %>% html_text(trim = T)
 lcsmatrix<-matrix(data = lcstb,ncol = 12,byrow = T)
 colnames(lcsmatrix)<-lcstitle
+remdr$server$stop()
