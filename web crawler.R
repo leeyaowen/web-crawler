@@ -10,7 +10,7 @@ library(httr)
 library(jsonlite)
 library(stringi)
 
-#rvest cwbç™¾
+#rvest cwb
 cwb<-read_html("https://www.cwb.gov.tw/V7/observe/rainfall/ha_100.htm")
 cwbdt<-cwb %>% html_nodes("table.BoxTable td") %>% html_text()
 cwbtitle<-cwb %>% html_nodes("table.BoxTable th") %>% html_text()
