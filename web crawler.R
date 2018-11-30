@@ -10,7 +10,7 @@ library(httr)
 library(jsonlite)
 library(stringi)
 
-#氣象局雨量前百
+#簧簸繞H禮翻竄B繞q竄e礎�� 
 cwb<-read_html("https://www.cwb.gov.tw/V7/observe/rainfall/ha_100.htm")
 cwbdt<-cwb %>% html_nodes("table.BoxTable td") %>% html_text()
 cwbtitle<-cwb %>% html_nodes("table.BoxTable th") %>% html_text()
