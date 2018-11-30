@@ -10,7 +10,7 @@ library(httr)
 library(jsonlite)
 library(stringi)
 
-#簧rvest cwb
+#氣象局雨量前百
 cwb<-read_html("https://www.cwb.gov.tw/V7/observe/rainfall/ha_100.htm")
 cwbdt<-cwb %>% html_nodes("table.BoxTable td") %>% html_text()
 cwbtitle<-cwb %>% html_nodes("table.BoxTable th") %>% html_text()
@@ -67,3 +67,15 @@ for (i in 1:10) {
   closeAllConnections()
   gc()
 }
+
+
+#RSelenium NA LCS
+remdr<-rsDriver()
+rd<-remdr$client
+rd$navigate("https://www.lolesports.com/en_US/na-lcs/na_2018_summer/stats/playoffs")
+elem<-rd$findElement(using = "id",value = "stats-page")
+lcsdt<-read_html(lcs)
+lcstitle<-lcsdt %>% html_nodes("table th span.column-name") %>% html_text()
+lcstb<-lcsdt %>% html_nodes("table td") %>% html_text(trim = T)
+lcsmatrix<-matrix(data = lcstb,ncol = 12,byrow = T)
+colnames(lcsmatrix)<-lcstitle
