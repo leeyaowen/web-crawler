@@ -64,8 +64,6 @@ for (i in 1:10) {
   }
   x<-bind_rows(x,cpbltb)
   print(i)
-  closeAllConnections()
-  gc()
 }
 
 
@@ -74,9 +72,85 @@ remdr<-rsDriver()
 rd<-remdr$client
 rd$navigate("https://www.lolesports.com/en_US/na-lcs/na_2018_summer/stats/playoffs")
 elem<-rd$findElement(using = "id",value = "stats-page")
+lcs<-elem$getElementAttribute("outerHTML")[[1]]
 lcsdt<-read_html(lcs)
 lcstitle<-lcsdt %>% html_nodes("table th span.column-name") %>% html_text()
 lcstb<-lcsdt %>% html_nodes("table td") %>% html_text(trim = T)
 lcsmatrix<-matrix(data = lcstb,ncol = 12,byrow = T)
 colnames(lcsmatrix)<-lcstitle
 remdr$server$stop()
+
+
+##RSelenium cwb monthly data
+remdr<-rsDriver()
+rd<-remdr$client
+rd$navigate("https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain&station=C0R280&stname=%25E6%25AA%25B3%25E6%25A6%2594&datepicker=2010-01")
+elem<-rd$findElement(using = "xpath", value = "//*[@id='downloadCSV']")
+elem$clickElement()
+
+year<-as.character(2017:2018)
+month<-c("01","02","03","04","05","06","07","08","09","10","11","12")
+for (i in 1:length(year)) {
+  for (j in 1:length(month)) {
+    rd$navigate(paste("https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain&station=C0R280&stname=%25E6%25AA%25B3%25E6%25A6%2594&datepicker=",year[i],"-",month[j],sep = ""))
+    Sys.sleep(2)
+    elem<-rd$findElement(using = "xpath", value = "//*[@id='downloadCSV']")
+    elem$clickElement()
+    print(paste(year[i],"-",month[j],sep = ""))
+    Sys.sleep(10)
+  }
+}
+
+
+remdr<-rsDriver()
+rd<-remdr$client
+rd$navigate("https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain&station=C0R280&stname=%25E6%25AA%25B3%25E6%25A6%2594&datepicker=2018-12")
+elem<-rd$findElement(using = "xpath", value = "//*[@id='selectStno']")
+opt<-elem$selectTag()
+year<-as.character(2016:2018)
+month<-c("01","02","03","04","05","06","07","08","09","10","11","12")
+for (i in 1:length(opt$value)) {
+  for (j in 1:length(year)) {
+    for (k in 1:length(month)) {
+      elem<-rd$findElement(using = "xpath", value = "//*[@id='selectStno']")
+      opts<-elem$selectTag()
+      opts$elements[[i]]$clickElement()
+      urldt<-rd$getCurrentUrl()
+      if(j==1 & k>=2){
+        useurl<-substr(urldt[[1]],1,nchar(urldt[[1]])-8)
+      }else if(j>1){
+        useurl<-substr(urldt[[1]],1,nchar(urldt[[1]])-8)
+      }else{
+        useurl<-substr(urldt[[1]],1,nchar(urldt[[1]])-7)
+      }
+      rd$navigate(paste(useurl,year[j],"-",month[k],sep = ""))
+      Sys.sleep(2)
+      dldt<-rd$findElement(using = "xpath", value = "//*[@id='downloadCSV']")
+      dldt$clickElement()
+      print(paste(opts$value[i],"-",year[j],"-",month[k],sep = ""))
+      Sys.sleep(10)
+    }
+  }
+}
+
+remdr$server$stop()
+
+
+
+filenames <- list.files(pattern = ".csv")
+station<-list()
+for (i in 1:length(filenames)) {
+  station<-append(station,substr(filenames[i],1,nchar(filenames[i])-12))
+}
+All<-lapply(filenames,function(i){
+  read.csv(i)
+})
+dt1<-as.data.frame(All[1])
+dt1 %<>% mutate(.,station=station[1])
+dt1[]<-lapply(dt1,as.character)
+for (i in seq(2,length(filenames),by=1)) {
+  dt2<-as.data.frame(All[i])
+  dt2 %<>% mutate(.,station=station[i])
+  dt2[]<-lapply(dt2,as.character)
+  dt1<-rbind(dt1,dt2)
+}
