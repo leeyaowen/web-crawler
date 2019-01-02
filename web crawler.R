@@ -81,15 +81,22 @@ colnames(lcsmatrix)<-lcstitle
 remdr$server$stop()
 
 
-##RSelenium cwb monthly data
-remdr<-rsDriver()
-rd<-remdr$client
-rd$navigate("https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain&station=C0R280&stname=%25E6%25AA%25B3%25E6%25A6%2594&datepicker=2010-01")
-elem<-rd$findElement(using = "xpath", value = "//*[@id='downloadCSV']")
-elem$clickElement()
 
-year<-as.character(2017:2018)
-month<-c("01","02","03","04","05","06","07","08","09","10","11","12")
+################################
+###RSelenium CWB monthly data###
+################################
+
+#獲取單一測站資料
+remdr<-rsDriver() #啟動受控制的瀏覽器
+rd<-remdr$client
+#指向目標網頁
+rd$navigate("https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain&station=C0R280&stname=%25E6%25AA%25B3%25E6%25A6%2594&datepicker=2010-01")
+elem<-rd$findElement(using = "xpath", value = "//*[@id='downloadCSV']") #找到下載CSV按鍵
+elem$clickElement() #按下按鍵
+
+#單一測站年月迴圈
+year<-as.character(2017:2018) #設定年分
+month<-c("01","02","03","04","05","06","07","08","09","10","11","12") #設定月份
 for (i in 1:length(year)) {
   for (j in 1:length(month)) {
     rd$navigate(paste("https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain&station=C0R280&stname=%25E6%25AA%25B3%25E6%25A6%2594&datepicker=",year[i],"-",month[j],sep = ""))
@@ -101,12 +108,13 @@ for (i in 1:length(year)) {
   }
 }
 
-
+#單一縣市所有測站迴圈
 remdr<-rsDriver()
 rd<-remdr$client
+#先指向該縣市其一測站某年某月資料
 rd$navigate("https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain&station=C0R280&stname=%25E6%25AA%25B3%25E6%25A6%2594&datepicker=2018-12")
 elem<-rd$findElement(using = "xpath", value = "//*[@id='selectStno']")
-opt<-elem$selectTag()
+opt<-elem$selectTag() #獲取縣市內的測站清單
 year<-as.character(2016:2018)
 month<-c("01","02","03","04","05","06","07","08","09","10","11","12")
 for (i in 1:length(opt$value)) {
@@ -133,10 +141,10 @@ for (i in 1:length(opt$value)) {
   }
 }
 
-remdr$server$stop()
+remdr$server$stop() #終止受控制的瀏覽器(如果瀏覽器關掉要重新啟動一定要執行這行)
 
 
-
+#將測站編號加入資料表中(將欲合併的csv檔與R檔案放置於同一資料夾中)
 filenames <- list.files(pattern = ".csv")
 station<-list()
 for (i in 1:length(filenames)) {
